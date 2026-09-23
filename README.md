@@ -1,4 +1,4 @@
-# Home Assistant Integration: Home Upkeep
+# Home Upkeep - A Task Tracker for Home Assistant
 
 Home Upkeep is a local 'to-do' list for recurring and non-recurring household tasks, such as cleaning, gardening and maintenance chores.
 
