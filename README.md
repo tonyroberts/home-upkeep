@@ -50,10 +50,10 @@ Assistant custom panel) and needs nothing else installed.
 
 The integration can be installed via HACS:
 
-<a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=tonyroberts&amp;repository=home-upkeep-component&amp;category=integration" rel="nofollow"><img src="https://camo.githubusercontent.com/8cec5af6ba93659beb5352741334ef3bbee70c4cb725f20832a1b897dfb8fc5f/68747470733a2f2f6d792e686f6d652d617373697374616e742e696f2f6261646765732f686163735f7265706f7369746f72792e737667" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." data-canonical-src="https://my.home-assistant.io/badges/hacs_repository.svg" style="max-width: 100%;"></a>
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tonyroberts&repository=home-upkeep&category=integration)
 
 Or to install manually:
-   - Add the repository [https://github.com/tonyroberts/home-upkeep-component](https://github.com/tonyroberts/home-upkeep-component) to your HACS custom repositories, using type 'integration'
+   - Add the repository [https://github.com/tonyroberts/home-upkeep](https://github.com/tonyroberts/home-upkeep) to your HACS custom repositories, using type 'integration'
    - Install the Home Upkeep custom integration
    - Add the integration under Settings -> Devices & services
 
