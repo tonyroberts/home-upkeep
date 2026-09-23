@@ -33,10 +33,10 @@ export class HomeUpkeepTaskForm extends LitElement {
         grid-template-columns: 1fr;
         gap: 0.75rem;
         border-radius: 0.5rem;
-        border: 1px solid var(--hu-gray-200);
-        background: white;
+        border: 1px solid var(--hu-border);
+        background: var(--hu-surface);
         padding: 1rem;
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        box-shadow: var(--hu-shadow-sm);
       }
       @media (min-width: 768px) {
         form {
@@ -52,12 +52,6 @@ export class HomeUpkeepTaskForm extends LitElement {
       @media (min-width: 768px) {
         .cancel-button {
           display: none;
-        }
-      }
-      @media (prefers-color-scheme: dark) {
-        form {
-          background: var(--hu-gray-800);
-          border-color: var(--hu-gray-700);
         }
       }
     `,

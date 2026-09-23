@@ -22,12 +22,7 @@ export class HomeUpkeepSnoozeDialog extends LitElement {
       p.hint {
         margin: 0 0 1rem;
         font-size: 0.875rem;
-        color: var(--hu-gray-600);
-      }
-      @media (prefers-color-scheme: dark) {
-        p.hint {
-          color: var(--hu-gray-300);
-        }
+        color: var(--hu-text-muted);
       }
     `,
   ];

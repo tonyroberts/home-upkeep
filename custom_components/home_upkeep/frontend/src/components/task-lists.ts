@@ -98,7 +98,7 @@ export class HomeUpkeepTaskLists extends LitElement {
         flex: 1;
         text-align: left;
         font-weight: 500;
-        color: var(--hu-gray-900);
+        color: var(--hu-text);
         background: none;
         border: none;
         cursor: pointer;
@@ -107,7 +107,7 @@ export class HomeUpkeepTaskLists extends LitElement {
         font-family: inherit;
       }
       .name-button:hover {
-        color: var(--hu-blue-600);
+        color: var(--hu-primary);
       }
       .row-actions {
         margin-left: 0.5rem;
@@ -118,18 +118,7 @@ export class HomeUpkeepTaskLists extends LitElement {
         padding: 1rem 0;
         text-align: center;
         font-size: 0.875rem;
-        color: var(--hu-gray-500);
-      }
-      @media (prefers-color-scheme: dark) {
-        .name-button {
-          color: var(--hu-gray-100);
-        }
-        .name-button:hover {
-          color: var(--hu-blue-400);
-        }
-        .empty {
-          color: var(--hu-gray-400);
-        }
+        color: var(--hu-text-muted);
       }
     `,
   ];

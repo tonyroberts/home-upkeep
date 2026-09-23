@@ -1,72 +1,78 @@
 import { css } from "lit";
 
 /**
- * Palette custom properties, ported verbatim from the add-on's
- * `index.css` `@theme` block (primary/gray) plus the standard Tailwind
- * default shades it relied on for red/green/yellow/orange/blue. These are
- * fixed hex values — a given shade means the same thing in light and dark
- * mode; what changes between modes is *which* shade a given rule uses; see
- * each component's own `@media (prefers-color-scheme: dark)` block for that.
+ * Semantic colour tokens, each aliasing a Home Assistant theme variable
+ * with a fallback matching HA's default light theme.
  *
- * Only the root panel (`entrypoint.ts`) includes this; CSS custom properties
- * inherit through shadow DOM boundaries, so every descendant component's
- * shadow root can reference `var(--hu-*)` without redefining it.
+ * This is the panel's *only* coupling to HA's theme system: everything
+ * else refers to `--hu-*` and never to an HA variable directly, so a
+ * renamed or added HA variable is a one-line change here.
+ *
+ * There are deliberately no `@media (prefers-color-scheme: dark)` blocks
+ * anywhere in the panel. That media query tracks the *operating system*
+ * preference, which is not what HA's dark mode sets — HA resolves its own
+ * theme (including its "auto" setting) and publishes the result through
+ * these variables. Following them means the panel tracks whatever theme
+ * the user has chosen, custom themes included, and needs no light/dark
+ * branching of its own.
+ *
+ * Only the root panel (`entrypoint.ts`) includes this; CSS custom
+ * properties inherit through shadow DOM boundaries, so every descendant
+ * component's shadow root can reference `var(--hu-*)` without redefining
+ * it — and a theme change reaches all of them at once.
  */
 export const designTokens = css`
   :host {
-    --hu-primary-50: #e6f6ff;
-    --hu-primary-100: #b3e5fc;
-    --hu-primary-400: #29b6f6;
-    --hu-primary-500: #03a9f4;
-    --hu-primary-600: #039be5;
-    --hu-primary-700: #0288d1;
-    --hu-primary-800: #0277bd;
-    --hu-primary-900: #01579b;
+    /* Surfaces */
+    --hu-bg: var(--primary-background-color, #fafafa);
+    --hu-surface: var(--card-background-color, #ffffff);
+    --hu-surface-alt: var(--secondary-background-color, #e5e5e5);
 
-    --hu-gray-50: #fafafa;
-    --hu-gray-100: #f5f5f5;
-    --hu-gray-200: #eeeeee;
-    --hu-gray-300: #e0e0e0;
-    --hu-gray-400: #bdbdbd;
-    --hu-gray-500: #9e9e9e;
-    --hu-gray-600: #757575;
-    --hu-gray-700: #616161;
-    --hu-gray-800: #424242;
-    --hu-gray-900: #1c1c1c;
+    /* Text */
+    --hu-text: var(--primary-text-color, #212121);
+    --hu-text-muted: var(--secondary-text-color, #727272);
+    --hu-text-on-accent: var(--text-primary-color, #ffffff);
 
-    --hu-red-50: #fef2f2;
-    --hu-red-100: #fee2e2;
-    --hu-red-200: #fecaca;
-    --hu-red-300: #fca5a5;
-    --hu-red-400: #f87171;
-    --hu-red-600: #dc2626;
-    --hu-red-700: #b91c1c;
-    --hu-red-800: #991b1b;
-    --hu-red-900: #7f1d1d;
+    /* Lines */
+    --hu-border: var(--divider-color, #e0e0e0);
 
-    --hu-green-100: #dcfce7;
-    --hu-green-200: #bbf7d0;
-    --hu-green-800: #166534;
-    --hu-green-900: #14532d;
+    /* Accent */
+    --hu-primary: var(--primary-color, #03a9f4);
+    --hu-primary-strong: var(--dark-primary-color, #0288d1);
 
-    --hu-yellow-100: #fef9c3;
-    --hu-yellow-200: #fef08a;
-    --hu-yellow-800: #854d0e;
-    --hu-yellow-900: #713f12;
+    /* Status */
+    --hu-error: var(--error-color, #db4437);
+    --hu-warning: var(--warning-color, #ffa600);
+    --hu-success: var(--success-color, #43a047);
+    --hu-info: var(--info-color, #039be5);
 
-    --hu-orange-100: #ffedd5;
-    --hu-orange-200: #fed7aa;
-    --hu-orange-800: #9a3412;
-    --hu-orange-900: #7c2d12;
+    /*
+     * Translucent fills for badges, banners and selected rows. Mixing
+     * toward transparent rather than a fixed pale shade lets the same
+     * token sit correctly on a light or a dark surface, which is what the
+     * old paired light/dark hex values were doing by hand.
+     */
+    --hu-primary-fill: color-mix(in srgb, var(--hu-primary) 14%, transparent);
+    --hu-error-fill: color-mix(in srgb, var(--hu-error) 14%, transparent);
+    --hu-error-line: color-mix(in srgb, var(--hu-error) 40%, transparent);
+    --hu-warning-fill: color-mix(in srgb, var(--hu-warning) 18%, transparent);
+    --hu-success-fill: color-mix(in srgb, var(--hu-success) 16%, transparent);
+    --hu-info-fill: color-mix(in srgb, var(--hu-info) 16%, transparent);
 
-    --hu-blue-100: #dbeafe;
-    --hu-blue-200: #bfdbfe;
-    --hu-blue-400: #60a5fa;
-    --hu-blue-600: #2563eb;
-    --hu-blue-800: #1e40af;
-    --hu-blue-900: #1e3a8a;
+    /*
+     * Hover wash for controls that have no background of their own, so it
+     * composites over whatever is behind them. Because it is mixed from
+     * the text colour it darkens under a light theme and lightens under a
+     * dark one.
+     */
+    --hu-hover: color-mix(in srgb, var(--hu-text) 8%, transparent);
 
-    font-family: Roboto, Noto, sans-serif;
+    /* Elevation */
+    --hu-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --hu-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --hu-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.15);
+
+    font-family: var(--ha-font-family-body, Roboto, Noto, sans-serif);
   }
 `;
 
@@ -90,34 +96,25 @@ export const buttonStyles = css`
     opacity: 0.5;
   }
   .btn-primary {
-    background: var(--hu-primary-600);
-    color: white;
+    background: var(--hu-primary);
+    color: var(--hu-text-on-accent);
   }
   .btn-primary:hover:not(:disabled) {
-    background: var(--hu-primary-700);
+    background: var(--hu-primary-strong);
   }
   .btn-secondary {
-    background: var(--hu-gray-200);
-    color: var(--hu-gray-700);
+    background: var(--hu-surface-alt);
+    color: var(--hu-text);
   }
   .btn-secondary:hover:not(:disabled) {
-    background: var(--hu-gray-300);
+    background: color-mix(in srgb, var(--hu-surface-alt) 90%, var(--hu-text));
   }
   .btn-danger {
-    background: var(--hu-red-600);
-    color: white;
+    background: var(--hu-error);
+    color: var(--hu-text-on-accent);
   }
   .btn-danger:hover:not(:disabled) {
-    background: var(--hu-red-700);
-  }
-  @media (prefers-color-scheme: dark) {
-    .btn-secondary {
-      background: var(--hu-gray-700);
-      color: var(--hu-gray-200);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: var(--hu-gray-600);
-    }
+    background: color-mix(in srgb, var(--hu-error) 88%, var(--hu-text));
   }
 `;
 
@@ -126,28 +123,18 @@ export const inputStyles = css`
   .input-field {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid var(--hu-gray-300);
+    border: 1px solid var(--hu-border);
     border-radius: 0.5rem;
-    background: white;
-    color: var(--hu-gray-900);
+    background: var(--hu-surface);
+    color: var(--hu-text);
     font-size: 0.875rem;
     font-family: inherit;
     box-sizing: border-box;
   }
   .input-field:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--hu-primary-500);
+    box-shadow: 0 0 0 2px var(--hu-primary);
     border-color: transparent;
-  }
-  @media (prefers-color-scheme: dark) {
-    .input-field {
-      background: var(--hu-gray-800);
-      border-color: var(--hu-gray-600);
-      color: var(--hu-gray-100);
-    }
-    .input-field:focus {
-      box-shadow: 0 0 0 2px var(--hu-primary-400);
-    }
   }
 `;
 
@@ -156,14 +143,9 @@ export const checkboxStyles = css`
   .checkbox {
     height: 1rem;
     width: 1rem;
-    accent-color: var(--hu-primary-600);
-    border: 1px solid var(--hu-gray-300);
+    accent-color: var(--hu-primary);
+    border: 1px solid var(--hu-border);
     border-radius: 0.25rem;
-  }
-  @media (prefers-color-scheme: dark) {
-    .checkbox {
-      border-color: var(--hu-gray-600);
-    }
   }
 `;
 
@@ -177,41 +159,23 @@ export const iconButtonStyles = css`
     padding: 0.25rem;
     border-radius: 0.25rem;
     display: inline-flex;
-    color: var(--hu-gray-400);
+    color: var(--hu-text-muted);
   }
   .icon-button:hover {
-    color: var(--hu-gray-600);
+    color: var(--hu-text);
   }
   .icon-button-danger:hover {
-    color: var(--hu-red-600);
-  }
-  @media (prefers-color-scheme: dark) {
-    .icon-button,
-    .icon-button-danger {
-      color: var(--hu-gray-500);
-    }
-    .icon-button:hover {
-      color: var(--hu-gray-300);
-    }
-    .icon-button-danger:hover {
-      color: var(--hu-red-400);
-    }
+    color: var(--hu-error);
   }
 `;
 
 /** `.card` */
 export const cardStyles = css`
   .card {
-    background: white;
+    background: var(--hu-surface);
     border-radius: 0.5rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    border: 1px solid var(--hu-gray-200);
-  }
-  @media (prefers-color-scheme: dark) {
-    .card {
-      background: var(--hu-gray-900);
-      border-color: var(--hu-gray-800);
-    }
+    box-shadow: var(--hu-shadow-sm);
+    border: 1px solid var(--hu-border);
   }
 `;
 
@@ -233,16 +197,16 @@ export const dialogStyles = css`
     z-index: 50;
   }
   .dialog-body {
-    background: white;
+    background: var(--hu-surface);
     border-radius: 0.5rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    box-shadow: var(--hu-shadow-lg);
     width: 100%;
     max-width: 28rem;
   }
   .dialog-body-large {
-    background: white;
+    background: var(--hu-surface);
     border-radius: 0.5rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    box-shadow: var(--hu-shadow-lg);
     width: 100%;
     max-width: 42rem;
     max-height: 90vh;
@@ -254,30 +218,30 @@ export const dialogStyles = css`
   .dialog-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--hu-gray-900);
+    color: var(--hu-text);
     margin: 0 0 1rem;
   }
   .dialog-title-large {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--hu-gray-900);
+    color: var(--hu-text);
     margin: 0 0 1.5rem;
   }
   .dialog-label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--hu-gray-700);
+    color: var(--hu-text);
     margin-bottom: 0.25rem;
     display: block;
   }
   .dialog-label-inline {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--hu-gray-700);
+    color: var(--hu-text);
   }
   .dialog-help-text {
     font-size: 0.75rem;
-    color: var(--hu-gray-500);
+    color: var(--hu-text-muted);
     margin-top: 0.25rem;
   }
   .dialog-actions {
@@ -291,27 +255,14 @@ export const dialogStyles = css`
     gap: 0.75rem;
     justify-content: flex-end;
   }
-  @media (prefers-color-scheme: dark) {
-    .dialog-body,
-    .dialog-body-large {
-      background: var(--hu-gray-900);
-    }
-    .dialog-title,
-    .dialog-title-large {
-      color: var(--hu-gray-100);
-    }
-    .dialog-label,
-    .dialog-label-inline {
-      color: var(--hu-gray-300);
-    }
-    .dialog-help-text {
-      color: var(--hu-gray-400);
-    }
-  }
 `;
 
 /**
  * `.badge-warning` / `.badge-info` / `.badge-orange` / `.badge-green`
+ *
+ * `.badge-warning` and `.badge-orange` now share the warning colour and
+ * differ only in layout — HA's palette has one "needs attention" colour
+ * where the old fixed palette had both a yellow and an orange.
  */
 export const badgeStyles = css`
   .badge-warning,
@@ -325,23 +276,23 @@ export const badgeStyles = css`
     border-radius: 0.25rem;
   }
   .badge-warning {
-    background: var(--hu-yellow-100);
-    color: var(--hu-yellow-800);
+    background: var(--hu-warning-fill);
+    color: var(--hu-text);
   }
   .badge-info {
-    background: var(--hu-blue-100);
-    color: var(--hu-blue-800);
+    background: var(--hu-info-fill);
+    color: var(--hu-text);
   }
   .badge-info button {
     margin-left: 0.25rem;
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--hu-blue-600);
+    color: var(--hu-info);
     font-size: inherit;
   }
   .badge-info button:hover {
-    color: var(--hu-blue-800);
+    color: var(--hu-text);
   }
   .badge-orange,
   .badge-green {
@@ -349,73 +300,137 @@ export const badgeStyles = css`
     border-radius: 0.25rem;
   }
   .badge-orange {
-    background: var(--hu-orange-100);
-    color: var(--hu-orange-800);
+    background: var(--hu-warning-fill);
+    color: var(--hu-text);
   }
   .badge-green {
-    background: var(--hu-green-100);
-    color: var(--hu-green-800);
-  }
-  @media (prefers-color-scheme: dark) {
-    .badge-warning {
-      background: rgb(113 63 18 / 0.3);
-      color: var(--hu-yellow-200);
-    }
-    .badge-info {
-      background: rgb(30 58 138 / 0.3);
-      color: var(--hu-blue-200);
-    }
-    .badge-info button {
-      color: var(--hu-blue-400);
-    }
-    .badge-info button:hover {
-      color: var(--hu-blue-200);
-    }
-    .badge-orange {
-      background: rgb(124 45 18 / 0.3);
-      color: var(--hu-orange-200);
-    }
-    .badge-green {
-      background: rgb(20 83 45 / 0.3);
-      color: var(--hu-green-200);
-    }
+    background: var(--hu-success-fill);
+    color: var(--hu-text);
   }
 `;
 
-/** `.task-item` / `.task-list` */
-export const taskItemStyles = css`
-  .task-item {
-    background: white;
+/**
+ * `.banner` / `.banner-dismissible` / `.banner-icon` / `.banner-body` /
+ * `.banner-title` / `.banner-text` / `.banner-dismiss`
+ *
+ * Full-width alert strip in the theme's error colour. `.banner` is the
+ * shell; add `.banner-dismissible` when a dismiss button sits opposite the
+ * message. `.banner-title` is the bold leading line (on its own, or above
+ * a `.banner-text` detail line); `.banner-icon` + `.banner-body` are for
+ * the icon-then-text variant.
+ *
+ * The detail line uses the ordinary text colour rather than the error
+ * colour, so it stays legible whatever `--error-color` a theme picks.
+ */
+export const bannerStyles = css`
+  .banner {
+    margin-bottom: 1.5rem;
     border-radius: 0.5rem;
-    border: 1px solid var(--hu-gray-200);
+    border: 1px solid var(--hu-error-line);
+    background: var(--hu-error-fill);
     padding: 1rem;
-    transition: box-shadow 0.2s;
+    display: flex;
   }
-  .task-item:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  .banner-dismissible {
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
+  .banner-icon {
+    height: 1.25rem;
+    width: 1.25rem;
+    color: var(--hu-error);
+    flex-shrink: 0;
+  }
+  .banner-body {
+    margin-left: 0.75rem;
+  }
+  .banner-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--hu-error);
+  }
+  .banner-text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--hu-text);
+  }
+  .banner-dismiss {
+    border: none;
+    background: none;
+    color: var(--hu-error);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.25rem;
+    flex-shrink: 0;
+  }
+`;
+
+/** `.loading` / `.spinner` / `.loading-text` */
+export const spinnerStyles = css`
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+  .spinner {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    border-bottom-color: var(--hu-primary);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .loading-text {
+    margin-left: 0.75rem;
+    color: var(--hu-text-muted);
+  }
+`;
+
+/**
+ * `.task-list`
+ *
+ * The column a run of `<home-upkeep-task-item>`s sits in. Separate from
+ * `taskItemStyles` because the two never apply in the same shadow root:
+ * the container is the panel's, each item's own styling is its
+ * component's.
+ */
+export const taskListStyles = css`
   .task-list {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
-  @media (prefers-color-scheme: dark) {
-    .task-item {
-      background: var(--hu-gray-800);
-      border-color: var(--hu-gray-700);
-    }
-    .task-item:hover {
-      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
-    }
+`;
+
+/** `.task-item` */
+export const taskItemStyles = css`
+  .task-item {
+    background: var(--hu-surface);
+    border-radius: 0.5rem;
+    border: 1px solid var(--hu-border);
+    padding: 1rem;
+    transition: box-shadow 0.2s;
+  }
+  .task-item:hover {
+    box-shadow: var(--hu-shadow-md);
   }
 `;
 
 /** `.list-item` / `.list-item-selected` */
 export const listItemStyles = css`
   .list-item {
-    background: white;
+    background: var(--hu-surface);
     border-radius: 0.5rem;
-    border: 1px solid var(--hu-gray-200);
+    border: 1px solid var(--hu-border);
     padding: 0.75rem;
     transition:
       box-shadow 0.2s,
@@ -423,28 +438,12 @@ export const listItemStyles = css`
       border-color 0.2s;
   }
   .list-item:hover {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: var(--hu-shadow-sm);
   }
   .list-item-selected {
-    background: var(--hu-primary-50);
-    border-color: var(--hu-primary-100);
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  }
-  @media (prefers-color-scheme: dark) {
-    .list-item {
-      background: var(--hu-gray-800);
-      border-color: var(--hu-gray-700);
-    }
-    .list-item:hover {
-      background: var(--hu-gray-700);
-    }
-    .list-item-selected {
-      background: rgb(1 87 155 / 0.2);
-      border-color: var(--hu-primary-800);
-    }
-    .list-item-selected:hover {
-      background: rgb(1 87 155 / 0.2);
-    }
+    background: var(--hu-primary-fill);
+    border-color: var(--hu-primary);
+    box-shadow: var(--hu-shadow-sm);
   }
 `;
 
@@ -457,7 +456,7 @@ export const sectionStyles = css`
   .section-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--hu-gray-900);
+    color: var(--hu-text);
     margin: 0;
   }
   .section-header {
@@ -473,55 +472,30 @@ export const sectionStyles = css`
     font-weight: 500;
     padding: 0.125rem 0.625rem;
     border-radius: 9999px;
+    color: var(--hu-text);
   }
   .count-due {
-    background: var(--hu-orange-100);
-    color: var(--hu-orange-800);
+    background: var(--hu-warning-fill);
   }
   .count-upcoming {
-    background: var(--hu-blue-100);
-    color: var(--hu-blue-800);
+    background: var(--hu-info-fill);
   }
   .count-completed {
-    background: var(--hu-green-100);
-    color: var(--hu-green-800);
+    background: var(--hu-success-fill);
   }
   .empty-state {
     text-align: center;
     padding: 2rem 0;
-    color: var(--hu-gray-500);
+    color: var(--hu-text-muted);
   }
   .empty-state-icon {
     margin: 0 auto;
     height: 3rem;
     width: 3rem;
-    color: var(--hu-gray-400);
+    color: var(--hu-text-muted);
   }
   .empty-state-text {
     margin-top: 0.5rem;
-  }
-  @media (prefers-color-scheme: dark) {
-    .section-title {
-      color: var(--hu-gray-100);
-    }
-    .count-due {
-      background: rgb(124 45 18 / 0.3);
-      color: var(--hu-orange-200);
-    }
-    .count-upcoming {
-      background: rgb(30 58 138 / 0.3);
-      color: var(--hu-blue-200);
-    }
-    .count-completed {
-      background: rgb(20 83 45 / 0.3);
-      color: var(--hu-green-200);
-    }
-    .empty-state {
-      color: var(--hu-gray-400);
-    }
-    .empty-state-icon {
-      color: var(--hu-gray-500);
-    }
   }
 `;
 
@@ -544,3 +518,94 @@ export const formStyles = css`
   }
 `;
 
+/**
+ * `.app-toolbar` / `.app-toolbar-title` / `.hass-menu-button`
+ *
+ * Stands in for the Home Assistant frontend's own narrow-layout toolbar,
+ * which core panels get from `hass-tabs-subpage`/`ha-menu-button` but a
+ * bare `panel_custom` element does not — see `entrypoint.ts`'s
+ * `_toggleHassMenu` for the full reasoning. The measurements here
+ * (40px bar, 16px inline padding, 16px title) match the HA shell's, so
+ * ours doesn't jump when navigating between panels.
+ *
+ * This is the one place that reads HA's `--app-header-*` variables
+ * directly rather than going through a `--hu-*` token, because matching
+ * the HA header is the whole point of the element — it should follow the
+ * header's colours even in a theme that styles the header differently
+ * from ordinary cards.
+ *
+ * `.hass-menu-button` therefore answers to Home Assistant's look, not
+ * ours. It currently resembles `burgerStyles`' `.burger`, but only by
+ * coincidence — see that export's note before unifying them.
+ */
+export const toolbarStyles = css`
+  .app-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    color: var(--app-header-text-color, var(--hu-text));
+    height: calc(40px + var(--safe-area-inset-top, 0px));
+    padding: 0px 16px;
+    background: var(--app-header-background-color, var(--hu-surface));
+    border-bottom: 1px solid var(--hu-border);
+    box-sizing: border-box;
+  }
+  .app-toolbar-title {
+    margin-inline-start: 1.5rem;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--app-header-text-color, var(--hu-text));
+    line-height: 1.2;
+    pointer-events: none;
+  }
+  .hass-menu-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    color: var(--app-header-text-color, var(--hu-text));
+    cursor: pointer;
+  }
+  .hass-menu-button:hover {
+    background: var(--hu-hover);
+  }
+`;
+
+/**
+ * `.burger`
+ *
+ * Toggles *this app's* own list sidebar on narrow layouts, where the
+ * sidebar collapses off-screen; hidden from `lg` up, since the sidebar is
+ * always visible there.
+ *
+ * Deliberately kept separate from `toolbarStyles`' `.hass-menu-button`
+ * even though the two rule sets currently coincide. That one opens Home
+ * Assistant's drawer and exists to look native to the HA shell, so it
+ * follows HA's header colours; this one is part of our own UI and follows
+ * the panel's. They are free to diverge, and merging them would couple two
+ * things that only happen to look alike today.
+ */
+export const burgerStyles = css`
+  .burger {
+    display: inline-flex;
+    border: none;
+    background: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    color: var(--hu-text-muted);
+    cursor: pointer;
+  }
+  .burger:hover {
+    background: var(--hu-hover);
+    color: var(--hu-text);
+  }
+  @media (min-width: 1024px) {
+    .burger {
+      display: none;
+    }
+  }
+`;

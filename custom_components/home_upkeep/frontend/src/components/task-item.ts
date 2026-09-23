@@ -101,17 +101,17 @@ export class HomeUpkeepTaskItem extends LitElement {
         font-size: 0.875rem;
         font-weight: 500;
         line-height: 1rem;
-        color: var(--hu-gray-900);
+        color: var(--hu-text);
         margin: 0;
       }
       .title.completed {
-        color: var(--hu-gray-500);
+        color: var(--hu-text-muted);
         text-decoration: line-through;
       }
       .description {
         margin: 0.25rem 0 0;
         font-size: 0.875rem;
-        color: var(--hu-gray-600);
+        color: var(--hu-text-muted);
       }
       .badges {
         margin-top: 0.25rem;
@@ -120,25 +120,11 @@ export class HomeUpkeepTaskItem extends LitElement {
         gap: 0.5rem;
         flex-wrap: wrap;
         font-size: 0.75rem;
-        color: var(--hu-gray-500);
+        color: var(--hu-text-muted);
       }
       .actions {
         display: flex;
         gap: 0.5rem;
-      }
-      @media (prefers-color-scheme: dark) {
-        .title {
-          color: var(--hu-gray-100);
-        }
-        .title.completed {
-          color: var(--hu-gray-400);
-        }
-        .description {
-          color: var(--hu-gray-300);
-        }
-        .badges {
-          color: var(--hu-gray-400);
-        }
       }
     `,
   ];

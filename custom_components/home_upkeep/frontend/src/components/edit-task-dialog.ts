@@ -82,20 +82,20 @@ export class HomeUpkeepEditTaskDialog extends LitElement {
         border: 1px solid transparent;
       }
       .month-button.prohibited {
-        border-color: var(--hu-red-200);
-        background: var(--hu-red-100);
-        color: var(--hu-red-800);
+        border-color: var(--hu-error-line);
+        background: var(--hu-error-fill);
+        color: var(--hu-text);
       }
       .month-button.prohibited:hover {
-        background: var(--hu-red-200);
+        background: color-mix(in srgb, var(--hu-error) 28%, transparent);
       }
       .month-button.allowed {
-        border-color: var(--hu-green-200);
-        background: var(--hu-green-100);
-        color: var(--hu-green-800);
+        border-color: color-mix(in srgb, var(--hu-success) 40%, transparent);
+        background: var(--hu-success-fill);
+        color: var(--hu-text);
       }
       .month-button.allowed:hover {
-        background: var(--hu-green-200);
+        background: color-mix(in srgb, var(--hu-success) 30%, transparent);
       }
       .constraints {
         display: flex;
@@ -111,24 +111,6 @@ export class HomeUpkeepEditTaskDialog extends LitElement {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-      }
-      @media (prefers-color-scheme: dark) {
-        .month-button.prohibited {
-          border-color: var(--hu-red-800);
-          background: rgb(127 29 29 / 0.3);
-          color: var(--hu-red-200);
-        }
-        .month-button.prohibited:hover {
-          background: rgb(127 29 29 / 0.5);
-        }
-        .month-button.allowed {
-          border-color: var(--hu-green-800);
-          background: rgb(20 83 45 / 0.3);
-          color: var(--hu-green-200);
-        }
-        .month-button.allowed:hover {
-          background: rgb(20 83 45 / 0.5);
-        }
       }
     `,
   ];

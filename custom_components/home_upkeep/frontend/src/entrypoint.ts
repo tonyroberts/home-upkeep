@@ -20,7 +20,16 @@ import {
   type TaskUpdate,
 } from "./ha-api";
 import { parseDueDate } from "./dates";
-import { buttonStyles, designTokens, sectionStyles } from "./styles";
+import {
+  bannerStyles,
+  burgerStyles,
+  buttonStyles,
+  designTokens,
+  sectionStyles,
+  spinnerStyles,
+  taskListStyles,
+  toolbarStyles,
+} from "./styles";
 
 const LAST_LIST_STORAGE_KEY = "home-upkeep-last-list-id";
 
@@ -98,53 +107,18 @@ export class HomeUpkeepPanel extends LitElement {
 
   static styles = [
     designTokens,
+    toolbarStyles,
+    burgerStyles,
     buttonStyles,
     sectionStyles,
+    taskListStyles,
+    bannerStyles,
+    spinnerStyles,
     css`
       :host {
         display: block;
         min-height: 100vh;
-        background: var(--hu-gray-50);
-      }
-      @media (prefers-color-scheme: dark) {
-        :host {
-          background: black;
-        }
-      }
-      .app-toolbar {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        color: rgb(20, 20, 20);
-        height: calc(40px + var(--safe-area-inset-top, 0px));
-        padding: 0px 16px;
-        background: rgb(255, 255, 255);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-        box-sizing: border-box;
-      }
-      .app-toolbar-title {
-        margin-inline-start: 1.5rem;
-        font-size: 16px;
-        font-weight: 400;
-        color: rgb(20, 20, 20);
-        line-height: 1.2;
-        pointer-events: none;
-      }
-      .hass-menu-button {
-        display: inline-flex;
-        flex-shrink: 0;
-        border: none;
-        background: none;
-        border-radius: 0.25rem;
-        padding: 0.75rem;
-        color: var(--hu-gray-600);
-        cursor: pointer;
-      }
-      .hass-menu-button:hover {
-        background: var(--hu-gray-100);
-        color: var(--hu-gray-900);
+        background: var(--hu-bg);
       }
       .page {
         max-width: 80rem;
@@ -193,29 +167,11 @@ export class HomeUpkeepPanel extends LitElement {
         margin: 0 0 0.5rem;
         font-size: 1.875rem;
         font-weight: 700;
-        color: var(--hu-gray-900);
+        color: var(--hu-text);
       }
       .subtitle {
         margin: 0;
-        color: var(--hu-gray-600);
-      }
-      .burger {
-        display: inline-flex;
-        border: none;
-        background: none;
-        border-radius: 0.25rem;
-        padding: 0.5rem;
-        color: var(--hu-gray-600);
-        cursor: pointer;
-      }
-      .burger:hover {
-        background: var(--hu-gray-100);
-        color: var(--hu-gray-900);
-      }
-      @media (min-width: 1024px) {
-        .burger {
-          display: none;
-        }
+        color: var(--hu-text-muted);
       }
       .form-area {
         margin-bottom: 1.5rem;
@@ -236,143 +192,13 @@ export class HomeUpkeepPanel extends LitElement {
           display: block;
         }
       }
-      .loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 3rem 0;
-      }
-      .spinner {
-        height: 2rem;
-        width: 2rem;
-        border-radius: 9999px;
-        border: 2px solid transparent;
-        border-bottom-color: var(--hu-primary-600);
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .loading-text {
-        margin-left: 0.75rem;
-        color: var(--hu-gray-600);
-      }
-      .addon-banner {
-        margin-bottom: 1.5rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--hu-red-200);
-        background: var(--hu-red-50);
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-      }
-      .addon-banner-text {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--hu-red-800);
-      }
-      .addon-banner-dismiss {
-        border: none;
-        background: none;
-        color: var(--hu-red-800);
-        cursor: pointer;
-        font-size: 1rem;
-        line-height: 1;
-        padding: 0.25rem;
-        flex-shrink: 0;
-      }
-      .error-banner {
-        margin-bottom: 1.5rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--hu-red-200);
-        background: var(--hu-red-50);
-        padding: 1rem;
-        display: flex;
-      }
-      .error-icon {
-        height: 1.25rem;
-        width: 1.25rem;
-        color: var(--hu-red-400);
-        flex-shrink: 0;
-      }
-      .error-body {
-        margin-left: 0.75rem;
-      }
-      .error-title {
-        margin: 0;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--hu-red-800);
-      }
-      .error-text {
-        margin-top: 0.25rem;
-        font-size: 0.875rem;
-        color: var(--hu-red-700);
-      }
       .sections {
         display: flex;
         flex-direction: column;
         gap: 2rem;
       }
-      .task-list-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
       section.first {
         margin-top: 1.5rem;
-      }
-      @media (prefers-color-scheme: dark) {
-        .app-toolbar {
-          background: black;
-          border-bottom-color: var(--hu-gray-800);
-        }
-        .app-toolbar-title {
-          color: var(--hu-gray-300);
-        }
-        h1 {
-          color: var(--hu-gray-100);
-        }
-        .subtitle {
-          color: var(--hu-gray-400);
-        }
-        .burger,
-        .hass-menu-button {
-          color: var(--hu-gray-400);
-        }
-        .burger:hover,
-        .hass-menu-button:hover {
-          background: var(--hu-gray-800);
-          color: var(--hu-gray-100);
-        }
-        .loading-text {
-          color: var(--hu-gray-400);
-        }
-        .addon-banner {
-          border-color: var(--hu-red-800);
-          background: rgb(127 29 29 / 0.2);
-        }
-        .addon-banner-text,
-        .addon-banner-dismiss {
-          color: var(--hu-red-300);
-        }
-        .error-banner {
-          border-color: var(--hu-red-800);
-          background: rgb(127 29 29 / 0.2);
-        }
-        .error-icon {
-          color: var(--hu-red-300);
-        }
-        .error-title {
-          color: var(--hu-red-200);
-        }
-        .error-text {
-          color: var(--hu-red-300);
-        }
       }
     `,
   ];
@@ -714,7 +540,7 @@ export class HomeUpkeepPanel extends LitElement {
             <h2 class="section-title">Due / Overdue</h2>
             <span class="count-due">${due.length}</span>
           </div>
-          <div class="task-list-wrap">
+          <div class="task-list">
             ${due.map((t) => this._renderTaskItem(t))}
             ${due.length === 0
               ? html`<div class="empty-state">
@@ -729,7 +555,7 @@ export class HomeUpkeepPanel extends LitElement {
             <h2 class="section-title">Upcoming</h2>
             <span class="count-upcoming">${upcoming.length}</span>
           </div>
-          <div class="task-list-wrap">
+          <div class="task-list">
             ${upcoming.map((t) => this._renderTaskItem(t))}
             ${upcoming.length === 0
               ? html`<div class="empty-state">
@@ -744,7 +570,7 @@ export class HomeUpkeepPanel extends LitElement {
             <h2 class="section-title">Completed</h2>
             <span class="count-completed">${completed.length}</span>
           </div>
-          <div class="task-list-wrap">
+          <div class="task-list">
             ${completed.map((t) => this._renderTaskItem(t))}
             ${completed.length === 0
               ? html`<div class="empty-state">
@@ -781,13 +607,13 @@ export class HomeUpkeepPanel extends LitElement {
         ${this._migratedFromAddon &&
         this._addonRunning &&
         !this._addonBannerDismissed
-          ? html`<div class="addon-banner">
-              <div class="addon-banner-text">
+          ? html`<div class="banner banner-dismissible">
+              <div class="banner-title">
                 Home Upkeep add-on detected — its data has been migrated to
                 this panel. You can uninstall the add-on now.
               </div>
               <button
-                class="addon-banner-dismiss"
+                class="banner-dismiss"
                 aria-label="Dismiss"
                 @click=${() => {
                   this._addonBannerDismissed = true;
@@ -893,9 +719,9 @@ export class HomeUpkeepPanel extends LitElement {
                 </div>`
               : null}
             ${this._error
-              ? html`<div class="error-banner">
+              ? html`<div class="banner">
                   <svg
-                    class="error-icon"
+                    class="banner-icon"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -905,9 +731,9 @@ export class HomeUpkeepPanel extends LitElement {
                       clip-rule="evenodd"
                     />
                   </svg>
-                  <div class="error-body">
-                    <h3 class="error-title">Error</h3>
-                    <div class="error-text">${this._error}</div>
+                  <div class="banner-body">
+                    <h3 class="banner-title">Error</h3>
+                    <div class="banner-text">${this._error}</div>
                   </div>
                 </div>`
               : null}
