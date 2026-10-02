@@ -21,9 +21,7 @@ EXPECTED_TASKS = 2
 
 def _todo_entity_id(hass: HomeAssistant, list_id: int) -> str | None:
     registry = er.async_get(hass)
-    return registry.async_get_entity_id(
-        "todo", DOMAIN, f"home_upkeep_list_{list_id}"
-    )
+    return registry.async_get_entity_id("todo", DOMAIN, f"home_upkeep_list_{list_id}")
 
 
 async def test_entity_created_per_list(

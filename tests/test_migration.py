@@ -195,12 +195,8 @@ async def test_migrate_legacy_addon_pulls_data_and_marks_flag(
         domain=DOMAIN, data={CONF_HOST: "local-home-upkeep", CONF_PORT: 8125}
     )
     entry.add_to_hass(hass)
-    aioclient_mock.get(
-        "http://local-home-upkeep:8125/lists", json=[LIST_DOC]
-    )
-    aioclient_mock.get(
-        "http://local-home-upkeep:8125/tasks?list_id=1", json=[TASK_DOC]
-    )
+    aioclient_mock.get("http://local-home-upkeep:8125/lists", json=[LIST_DOC])
+    aioclient_mock.get("http://local-home-upkeep:8125/tasks?list_id=1", json=[TASK_DOC])
     store = HomeUpkeepStore(hass)
     await store.async_load()
 

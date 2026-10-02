@@ -70,9 +70,7 @@ class HomeUpkeepStore:
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the store."""
         self._hass = hass
-        self._store: Store[dict[str, Any]] = Store(
-            hass, STORAGE_VERSION, STORAGE_KEY
-        )
+        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self._tasks: dict[int, StoredTask] = {}
         self._lists: dict[int, StoredList] = {}
         self._next_task_id = 1
@@ -313,9 +311,7 @@ class HomeUpkeepStore:
             constraints=constraints or [],
         )
         self._tasks[task_id] = task
-        self._async_notify(
-            {"type": "task_created", "list_id": list_id, "task": task}
-        )
+        self._async_notify({"type": "task_created", "list_id": list_id, "task": task})
         return task
 
     def update_task(  # noqa: PLR0912, PLR0913
@@ -426,9 +422,7 @@ class HomeUpkeepStore:
         """Delete a task list and all its tasks."""
         if list_id not in self._lists:
             return False
-        self._tasks = {
-            tid: t for tid, t in self._tasks.items() if t.list_id != list_id
-        }
+        self._tasks = {tid: t for tid, t in self._tasks.items() if t.list_id != list_id}
         del self._lists[list_id]
         self._async_notify({"type": "list_deleted", "list_id": list_id})
         return True

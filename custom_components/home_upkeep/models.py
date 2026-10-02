@@ -54,9 +54,7 @@ class StoredTask:
             title=data["title"],
             description=data["description"],
             completed=data["completed"],
-            due_date=date.fromisoformat(data["due_date"])
-            if data["due_date"]
-            else None,
+            due_date=date.fromisoformat(data["due_date"]) if data["due_date"] else None,
             reschedule_period=data["reschedule_period"],
             reschedule_base=data["reschedule_base"],
             completed_at=datetime.fromisoformat(data["completed_at"])

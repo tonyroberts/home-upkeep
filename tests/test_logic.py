@@ -27,9 +27,7 @@ from custom_components.home_upkeep.logic import (
         (date(2026, 12, 15), "1m", date(2027, 1, 15)),  # year rollover
     ],
 )
-def test_calculate_next_due_date(
-    base_date: date, period: str, expected: date
-) -> None:
+def test_calculate_next_due_date(base_date: date, period: str, expected: date) -> None:
     """Reschedule periods (days/weeks/months) compute the expected date."""
     assert calculate_next_due_date(base_date, period) == expected
 
@@ -48,9 +46,7 @@ def test_calculate_next_due_date_allowed_month_is_unaffected() -> None:
 
 def test_find_first_non_prohibited_month_current_month_ok() -> None:
     """Current month is allowed: roll back to its first day."""
-    assert find_first_non_prohibited_month(date(2026, 3, 15), [4]) == date(
-        2026, 3, 1
-    )
+    assert find_first_non_prohibited_month(date(2026, 3, 15), [4]) == date(2026, 3, 1)
 
 
 def test_find_first_non_prohibited_month_rolls_forward() -> None:
@@ -69,9 +65,7 @@ def test_find_first_non_prohibited_month_rolls_over_year_boundary() -> None:
 
 def test_find_first_non_prohibited_month_no_prohibitions() -> None:
     """With no prohibited months, the original date is returned unchanged."""
-    assert find_first_non_prohibited_month(date(2026, 3, 15), []) == date(
-        2026, 3, 15
-    )
+    assert find_first_non_prohibited_month(date(2026, 3, 15), []) == date(2026, 3, 15)
 
 
 def test_find_first_non_prohibited_month_all_prohibited_falls_back() -> None:

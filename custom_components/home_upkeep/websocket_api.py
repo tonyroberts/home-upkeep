@@ -97,9 +97,7 @@ async def handle_lists_update(
     store = async_get_store(hass)
     lst = store.rename_list(msg["list_id"], msg["name"])
     if lst is None:
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "List not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "List not found")
         return
     connection.send_result(msg["id"], lst.to_storage())
 
@@ -117,9 +115,7 @@ async def handle_lists_delete(
     """Delete a task list and all its tasks."""
     store = async_get_store(hass)
     if not store.delete_list(msg["list_id"]):
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "List not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "List not found")
         return
     connection.send_result(msg["id"], {"success": True})
 
@@ -157,9 +153,7 @@ async def handle_tasks_get(
     store = async_get_store(hass)
     task = store.get_task(msg["task_id"])
     if task is None:
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found")
         return
     connection.send_result(msg["id"], task.to_storage())
 
@@ -237,9 +231,7 @@ async def handle_tasks_update(
         constraints=msg.get("constraints"),
     )
     if task is None:
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found")
         return
 
     # Only create a follow-up on the completed=false->true transition, not
@@ -278,9 +270,7 @@ async def handle_tasks_snooze(
 
     task = store.update_task(msg["task_id"], due_date=new_due_date)
     if task is None:
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found")
         return
     connection.send_result(msg["id"], task.to_storage())
 
@@ -298,9 +288,7 @@ async def handle_tasks_delete(
     """Delete a task."""
     store = async_get_store(hass)
     if not store.delete_task(msg["task_id"]):
-        connection.send_error(
-            msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found"
-        )
+        connection.send_error(msg["id"], websocket_api.ERR_NOT_FOUND, "Task not found")
         return
     connection.send_result(msg["id"], {"success": True})
 
@@ -308,9 +296,7 @@ async def handle_tasks_delete(
 # -------- Migration --------
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): "home_upkeep/migration_status"}
-)
+@websocket_api.websocket_command({vol.Required("type"): "home_upkeep/migration_status"})
 @websocket_api.async_response
 async def handle_migration_status(
     hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]

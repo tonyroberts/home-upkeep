@@ -20,9 +20,7 @@ if TYPE_CHECKING:
 type HomeUpkeepConfigEntry = ConfigEntry[HomeUpkeepStore]
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: HomeUpkeepConfigEntry
-) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: HomeUpkeepConfigEntry) -> bool:
     """Set up Home Upkeep from a config entry."""
     store = HomeUpkeepStore(hass)
     await store.async_load()
@@ -37,9 +35,7 @@ async def async_setup_entry(
     return True
 
 
-async def async_unload_entry(
-    hass: HomeAssistant, entry: HomeUpkeepConfigEntry
-) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: HomeUpkeepConfigEntry) -> bool:
     """Unload a Home Upkeep config entry."""
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     migration.async_unregister_services(hass)

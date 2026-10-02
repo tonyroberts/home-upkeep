@@ -231,9 +231,7 @@ async def async_migrate_legacy_addon(
         list_count,
         task_count,
     )
-    new_data = {
-        k: v for k, v in entry.data.items() if k not in (CONF_HOST, CONF_PORT)
-    }
+    new_data = {k: v for k, v in entry.data.items() if k not in (CONF_HOST, CONF_PORT)}
     hass.config_entries.async_update_entry(entry, data=new_data)
 
 

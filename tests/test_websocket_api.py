@@ -99,9 +99,7 @@ async def test_tasks_crud(
     assert resp["success"]
     assert resp["result"] == task
 
-    await client.send_json_auto_id(
-        {"type": "home_upkeep/tasks/get", "task_id": 999}
-    )
+    await client.send_json_auto_id({"type": "home_upkeep/tasks/get", "task_id": 999})
     resp = await client.receive_json()
     assert resp["success"] is False
     assert resp["error"]["code"] == "not_found"

@@ -161,9 +161,7 @@ async def test_dispatcher_signal_fires_on_mutation(hass: HomeAssistant) -> None:
     await store.async_load()
 
     events: list[dict] = []
-    async_dispatcher_connect(
-        hass, SIGNAL_UPKEEP_CHANGED, events.append
-    )
+    async_dispatcher_connect(hass, SIGNAL_UPKEEP_CHANGED, events.append)
 
     lst = store.create_list("Cleaning")
     await hass.async_block_till_done()
