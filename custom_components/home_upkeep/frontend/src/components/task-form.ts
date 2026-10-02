@@ -30,7 +30,7 @@ export class HomeUpkeepTaskForm extends LitElement {
     css`
       form {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0.75rem;
         border-radius: 0.5rem;
         border: 1px solid var(--hu-border);

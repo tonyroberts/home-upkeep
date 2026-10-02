@@ -178,6 +178,9 @@ async def async_setup_entry(
                 hass.async_create_task(
                     entities.pop(list_id).async_remove(force_remove=True)
                 )
+            elif entities[list_id].name != current[list_id]:
+                # An import can overwrite a list in place under the same ID.
+                entities[list_id].async_update_list_name(current[list_id])
 
     @callback
     def _handle_event(event: dict[str, Any]) -> None:

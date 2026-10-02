@@ -259,7 +259,7 @@ async def test_import_creates_entity_and_refreshes_overwritten_list(
 
     # The overwritten list's todo entity still exists and reflects the
     # imported task (its old task was replaced entirely).
-    assert hass.states.get(existing_entity_id) is not None
+    assert hass.states.get(existing_entity_id).name == "Cleaning (imported)"
     [task] = store.list_tasks(existing.id)
     assert task.title == "Fresh task"
 

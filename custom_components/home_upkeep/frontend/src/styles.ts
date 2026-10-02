@@ -139,6 +139,21 @@ export const inputStyles = css`
     box-shadow: 0 0 0 2px var(--hu-primary);
     border-color: transparent;
   }
+  /* iOS Safari renders <input type="date"> as an inline-block with its own
+     intrinsic width and native styling, ignoring width/height/background.
+     Drop the native appearance and force block layout so it matches text
+     inputs and stays within its grid column. */
+  input[type="date"].input-field {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    max-width: 100%;
+    text-align: left;
+  }
+  input[type="date"].input-field::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.25rem;
+  }
   /* Native <select> chrome (arrow, internal padding) is sized by each
      browser engine independently of our padding/line-height, so the same
      .input-field rules render at a different height than <input>. Drop the

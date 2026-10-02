@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "home_upkeep"
 
-PLATFORMS = [Platform.TODO]
+PLATFORMS = [Platform.CALENDAR, Platform.TODO]
 
 SIGNAL_UPKEEP_CHANGED = "home_upkeep_changed"
 

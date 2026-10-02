@@ -4,7 +4,7 @@
   "after_dependencies": ["hassio"],
   "codeowners": ["@tonyroberts"],
   "config_flow": true,
-  "dependencies": ["http", "websocket_api", "frontend", "panel_custom", "todo"],
+  "dependencies": ["http", "websocket_api", "frontend", "panel_custom", "todo", "calendar"],
   "documentation": "https://github.com/tonyroberts/home-upkeep-component",
   "integration_type": "service",
   "iot_class": "local_push",
