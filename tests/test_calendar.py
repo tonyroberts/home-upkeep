@@ -167,11 +167,11 @@ async def test_overdue_calendar_drops_task_once_checked_off(
     assert events == []
 
 
+@pytest.mark.freeze_time("2026-10-10 12:00:00")
 async def test_overdue_calendar_follows_today_after_midnight(
     setup_integration: MockConfigEntry, hass: HomeAssistant, freezer: Any
 ) -> None:
     """The entity state flips to the new day's overdue event at midnight."""
-    freezer.move_to("2026-10-10 12:00:00")
     store = async_get_store(hass)
     lst = store.create_list("Cleaning")
     store.create_task(lst.id, "Mop", None, due_date=date(2026, 10, 10))
