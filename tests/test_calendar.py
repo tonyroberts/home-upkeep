@@ -108,6 +108,28 @@ async def test_calendar_keeps_completed_tasks_on_their_due_date(
     assert [e["summary"] for e in events] == ["Done"]
 
 
+async def test_calendar_hides_completed_tasks_due_in_the_future(
+    setup_integration: MockConfigEntry, hass: HomeAssistant, freezer: Any
+) -> None:
+    """A task ticked off before its due date disappears from the future."""
+    freezer.move_to("2026-10-10 12:00:00")
+    store = async_get_store(hass)
+    lst = store.create_list("Cleaning")
+    store.create_task(
+        lst.id, "Early", None, completed=True, due_date=date(2026, 10, 13)
+    )
+    store.create_task(
+        lst.id, "Today", None, completed=True, due_date=date(2026, 10, 10)
+    )
+    store.create_task(lst.id, "Open", None, due_date=date(2026, 10, 13))
+    await hass.async_block_till_done()
+
+    entity_id = _calendar_entity_id(hass, f"home_upkeep_calendar_{lst.id}")
+    events = await _events(hass, entity_id, date(2026, 10, 1), date(2026, 10, 30))
+
+    assert sorted(e["summary"] for e in events) == ["Open", "Today"]
+
+
 async def test_calendar_updates_when_task_changes(
     setup_integration: MockConfigEntry, hass: HomeAssistant, freezer: Any
 ) -> None:
