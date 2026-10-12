@@ -18,8 +18,10 @@ from typing import Any
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SIGNAL_UPKEEP_CHANGED, STORAGE_KEY, STORAGE_VERSION
+from .logic import calculate_next_due_date
 from .models import StoredList, StoredTask
 
 _LOGGER = logging.getLogger(__name__)
@@ -232,6 +234,43 @@ class HomeUpkeepStore:
         )
 
     # -------- Tasks --------
+
+    def create_followup_task(
+        self, task: StoredTask, updated_at: datetime | None = None
+    ) -> StoredTask:
+        """
+        Create the rescheduled follow-up task for a just-completed task.
+
+        The client-supplied `updated_at` (local timezone) is preferred over
+        server time so due dates land on the correct local day, matching the
+        add-on backend's `update_task` behavior.
+        """
+        if task.reschedule_base == "due":
+            base_date = task.due_date
+        elif updated_at is not None:
+            base_date = updated_at.date()
+        elif task.completed_at is not None:
+            # completed_at is stored in UTC; convert to local time before
+            # taking the date, or this reintroduces the raw-UTC day-early
+            # bug fixed in commit 8439bf6.
+            base_date = dt_util.as_local(task.completed_at).date()
+        else:
+            base_date = None
+        base_date = base_date or dt_util.now().date()
+
+        next_due = calculate_next_due_date(
+            base_date, task.reschedule_period, task.prohibited_months
+        )
+        return self.create_task(
+            task.list_id,
+            task.title,
+            task.description,
+            due_date=next_due,
+            reschedule_period=task.reschedule_period,
+            reschedule_base=task.reschedule_base,
+            prohibited_months=task.prohibited_months,
+            constraints=task.constraints,
+        )
 
     def list_tasks(self, list_id: int) -> list[StoredTask]:
         """Get all tasks for a specific list."""
