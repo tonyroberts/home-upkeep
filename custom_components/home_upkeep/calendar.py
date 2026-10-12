@@ -120,13 +120,18 @@ class HomeUpkeepListCalendarEntity(_UpkeepCalendarEntity):
         """The Home Upkeep list ID this entity mirrors."""
         return self._list_id
 
-    def _all_events(self, today: date) -> list[CalendarEvent]:  # noqa: ARG002
-        """All dated tasks; `event` wants upcoming ones, so keep them sorted."""
+    def _all_events(self, today: date) -> list[CalendarEvent]:
+        """
+        Dated tasks, sorted; `event` wants upcoming ones.
+
+        Completed tasks stay as history on past/current dates, but are hidden
+        once their due date is in the future (e.g. ticked off early).
+        """
         dated = sorted(
             (
                 (t.due_date, t)
                 for t in self._store.list_tasks(self._list_id)
-                if t.due_date is not None
+                if t.due_date is not None and not (t.completed and t.due_date > today)
             ),
             key=lambda pair: pair[0],
         )
