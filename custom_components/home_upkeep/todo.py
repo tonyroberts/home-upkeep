@@ -4,8 +4,8 @@
 One `TodoListEntity` per list, mapping task <-> `TodoItem` (summary=title,
 status from `completed`, due=`due_date`, description, completed=
 `completed_at`). This absorbs the separate `home-upkeep-component` repo's
-role. The mapping is intentionally lossy: reschedule/seasonal/constraints
-richness lives in the panel, not here.
+role. The mapping is intentionally lossy: seasonal/constraints richness lives in
+the panel, though completing a recurring task still reschedules it.
 """
 
 from __future__ import annotations
@@ -129,18 +129,20 @@ class HomeUpkeepTodoListEntity(TodoListEntity):
         """
         Update a task from a todo item.
 
-        Deliberately calls the store directly rather than going through the
-        WS `tasks/update` handler, so completing a recurring task here does
-        *not* create a rescheduled follow-up task — that logic is part of
-        the panel experience, not the (intentionally lossy) todo mapping.
+        Completing a recurring task creates its rescheduled follow-up, same
+        as completing it from the panel.
         """
-        self._store.update_task(
+        previous = self._store.get_task(int(item.uid))
+        was_completed = previous is not None and previous.completed
+        task = self._store.update_task(
             int(item.uid),
             title=item.summary,
             description=item.description,
             completed=item.status == TodoItemStatus.COMPLETED,
             due_date=item.due,
         )
+        if task and not was_completed and task.completed and task.reschedule_period:
+            self._store.create_followup_task(task)
 
     async def async_delete_todo_items(self, uids: list[str]) -> None:
         """Delete tasks by their todo item uid."""

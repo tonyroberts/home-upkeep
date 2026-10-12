@@ -26,13 +26,9 @@ from .store import _UNSET, async_get_store
 # unnecessary runtime import, since `from __future__ import annotations`
 # means annotations are never evaluated at runtime anyway.
 if TYPE_CHECKING:
-    from datetime import datetime
-
     from homeassistant.components.websocket_api import ActiveConnection
     from homeassistant.core import HomeAssistant
 
-    from .models import StoredTask
-    from .store import HomeUpkeepStore
 
 _MONTH = vol.All(int, vol.Range(min=1, max=12))
 _RESCHEDULE_PERIOD = vol.Match(r"^[0-9]+[dwm]$")
@@ -55,44 +51,6 @@ def _serialize_event(event: dict[str, Any]) -> dict[str, Any]:
         if serialized.get(key) is not None:
             serialized[key] = serialized[key].to_storage()
     return serialized
-
-
-def _create_followup_task(
-    store: HomeUpkeepStore, task: StoredTask, updated_at: datetime | None
-) -> StoredTask:
-    """
-    Create the rescheduled follow-up task for a just-completed task.
-
-    The client-supplied `updated_at` (local timezone) is preferred over
-    server time so due dates land on the correct local day, matching the
-    add-on backend's `update_task` behavior.
-    """
-    if task.reschedule_base == "due":
-        base_date = task.due_date
-    elif updated_at is not None:
-        base_date = updated_at.date()
-    elif task.completed_at is not None:
-        # completed_at is stored in UTC (see store.py); convert to local
-        # time before taking the date, or this reintroduces the
-        # raw-UTC day-early bug fixed in commit 8439bf6.
-        base_date = dt_util.as_local(task.completed_at).date()
-    else:
-        base_date = None
-    base_date = base_date or dt_util.now().date()
-
-    next_due = calculate_next_due_date(
-        base_date, task.reschedule_period, task.prohibited_months
-    )
-    return store.create_task(
-        task.list_id,
-        task.title,
-        task.description,
-        due_date=next_due,
-        reschedule_period=task.reschedule_period,
-        reschedule_base=task.reschedule_base,
-        prohibited_months=task.prohibited_months,
-        constraints=task.constraints,
-    )
 
 
 # -------- Lists --------
@@ -281,7 +239,7 @@ async def handle_tasks_update(
     # would otherwise create a duplicate follow-up on each unrelated edit).
     created_task = None
     if not was_completed and task.completed and task.reschedule_period:
-        created_task = _create_followup_task(store, task, msg.get("updated_at"))
+        created_task = store.create_followup_task(task, msg.get("updated_at"))
 
     connection.send_result(
         msg["id"],

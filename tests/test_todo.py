@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+EXPECTED_TASKS = 2
+
 
 def _todo_entity_id(hass: HomeAssistant, list_id: int) -> str | None:
     registry = er.async_get(hass)
@@ -114,19 +116,49 @@ async def test_update_item_service_updates_task(
     assert store.get_task(task.id).completed is True
 
 
-async def test_completing_recurring_task_creates_no_followup(
+async def test_completing_recurring_task_creates_followup(
     setup_integration: MockConfigEntry, hass: HomeAssistant
 ) -> None:
-    """
-    Completing a recurring task via todo does not reschedule it.
-
-    Unlike the panel's WS tasks/update handler, the todo mapping is
-    intentionally lossy (see design spec) and talks to the store directly,
-    so it has no reschedule/seasonal logic.
-    """
+    """Completing a recurring task via todo creates the rescheduled follow-up."""
     store = async_get_store(hass)
     lst = store.create_list("Cleaning")
     task = store.create_task(lst.id, "Mop floors", None, reschedule_period="1m")
+    await hass.async_block_till_done()
+    entity_id = _todo_entity_id(hass, lst.id)
+
+    await hass.services.async_call(
+        "todo",
+        "update_item",
+        {"entity_id": entity_id, "item": str(task.id), "status": "completed"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+
+    tasks = store.list_tasks(lst.id)
+    assert len(tasks) == EXPECTED_TASKS
+    followup = next(t for t in tasks if t.id != task.id)
+    assert followup.completed is False
+    assert followup.reschedule_period == "1m"
+    assert followup.due_date is not None
+
+    # Re-saving the already-completed task must not create another follow-up.
+    await hass.services.async_call(
+        "todo",
+        "update_item",
+        {"entity_id": entity_id, "item": str(task.id), "rename": "Mop floors!"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+    assert len(store.list_tasks(lst.id)) == EXPECTED_TASKS
+
+
+async def test_completing_non_recurring_task_creates_no_followup(
+    setup_integration: MockConfigEntry, hass: HomeAssistant
+) -> None:
+    """Completing a one-off task via todo creates nothing extra."""
+    store = async_get_store(hass)
+    lst = store.create_list("Cleaning")
+    task = store.create_task(lst.id, "Mop floors", None)
     await hass.async_block_till_done()
     entity_id = _todo_entity_id(hass, lst.id)
 
