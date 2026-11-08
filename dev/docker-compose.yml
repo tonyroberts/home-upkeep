@@ -1,0 +1,21 @@
+# Local dev stack: Home Assistant with this integration mounted read-only.
+#
+#   docker compose -f dev/docker-compose.yml up -d
+#   HA: http://localhost:8123
+#
+# To test CalDAV sync, add HA's CalDAV integration pointing at any CalDAV
+# server reachable from the container. Use a dedicated test task list, not
+# one holding real tasks.
+
+# Explicit name: other projects' dev stacks default to "dev" (the directory
+# name) and would otherwise clash with this one.
+name: home-upkeep-dev
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.11.0b6
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./config:/config
+      - ../custom_components/home_upkeep:/config/custom_components/home_upkeep:ro

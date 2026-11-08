@@ -1,0 +1,6 @@
+# HA runtime state; only the files below are tracked
+config/*
+!config/configuration.yaml
+!config/automations.yaml
+!config/scripts.yaml
+!config/scenes.yaml
