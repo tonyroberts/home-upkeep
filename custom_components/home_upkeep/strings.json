@@ -29,6 +29,7 @@
         "description": "Home Upkeep works fine without this. Connect a CalDAV server, for example Radicale or Nextcloud, to keep lists in sync with apps like Tasks.org.",
         "menu_options": {
           "server": "Connect to a CalDAV server",
+          "enable": "Turn syncing on",
           "lists": "Choose which lists to sync",
           "disable": "Turn syncing off"
         }
@@ -45,7 +46,14 @@
       },
       "lists": {
         "title": "Lists to sync",
-        "description": "Choose a CalDAV collection for each Home Upkeep list, or create a new one named after the list. Tasks are created, completed, re-opened, edited and deleted on both sides. Leave a list on 'Not synced' to keep it local."
+        "description": "Select every Home Upkeep list that should be kept in sync with the CalDAV server. Unselected lists stay local. Select none to turn syncing off.",
+        "data": {
+          "lists": "Lists"
+        }
+      },
+      "collections": {
+        "title": "CalDAV collections",
+        "description": "Choose the CalDAV collection each list syncs with, or create a new one named after the list. Tasks are created, completed, re-opened, edited and deleted on both sides."
       }
     },
     "error": {

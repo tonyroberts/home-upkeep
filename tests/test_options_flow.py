@@ -108,12 +108,12 @@ async def test_server_step_reports_connection_problems(
     await hass.config_entries.async_unload(setup_integration.entry_id)
 
 
-async def test_connecting_then_linking_and_creating_collections(
+async def test_connecting_then_selecting_lists_and_collections(
     setup_integration: MockConfigEntry,
     hass: HomeAssistant,
     server: dict[str, Any],
 ) -> None:
-    """Connect, then per list: use a collection, create one, or leave it local."""
+    """Connect, select any number of lists, then give each a collection."""
     entry = setup_integration
     store = async_get_store(hass)
     cleaning = store.create_list("Cleaning")
@@ -126,10 +126,21 @@ async def test_connecting_then_linking_and_creating_collections(
         result["flow_id"], SERVER_INPUT
     )
     assert result["step_id"] == "lists"
+    selector = result["data_schema"].schema["lists"]
+    assert selector.config["multiple"] is True
+    assert {o["value"] for o in selector.config["options"]} == {
+        str(cleaning.id),
+        str(garden.id),
+        str(local.id),
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"lists": [str(cleaning.id), str(garden.id)]}
+    )
+    assert result["step_id"] == "collections"
     assert {str(key) for key in result["data_schema"].schema} == {
         f"Cleaning (#{cleaning.id})",
         f"Garden (#{garden.id})",
-        f"Local only (#{local.id})",
     }
 
     result = await hass.config_entries.options.async_configure(
@@ -137,7 +148,6 @@ async def test_connecting_then_linking_and_creating_collections(
         {
             f"Cleaning (#{cleaning.id})": CHORES.url,
             f"Garden (#{garden.id})": config_flow.CREATE_NEW,
-            f"Local only (#{local.id})": config_flow.NOT_SYNCED,
         },
     )
 
@@ -153,12 +163,41 @@ async def test_connecting_then_linking_and_creating_collections(
     await hass.config_entries.async_unload(entry.entry_id)
 
 
-async def test_reconfiguring_lists_with_a_saved_server_and_turning_sync_off(
+async def test_collection_defaults_to_the_one_named_like_the_list(
     setup_integration: MockConfigEntry,
     hass: HomeAssistant,
     server: dict[str, Any],
 ) -> None:
-    """With a server saved, lists can be edited without retyping credentials."""
+    """A collection with the list's name is preselected; otherwise a new one."""
+    entry = setup_integration
+    store = async_get_store(hass)
+    chores = store.create_list("Chores")
+    fresh = store.create_list("Fresh")
+    await hass.async_block_till_done()
+    hass.config_entries.async_update_entry(
+        entry, options={CONF_SERVER: SERVER_OPTIONS, CONF_LINKS: {}}
+    )
+    await hass.async_block_till_done()
+
+    result = await _menu(hass, entry, "enable")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"lists": [str(chores.id), str(fresh.id)]}
+    )
+
+    defaults = {str(k): k.default() for k in result["data_schema"].schema}
+    assert defaults == {
+        f"Chores (#{chores.id})": CHORES.url,
+        f"Fresh (#{fresh.id})": config_flow.CREATE_NEW,
+    }
+    await hass.config_entries.async_unload(entry.entry_id)
+
+
+async def test_reconfiguring_lists_with_a_saved_server_and_turning_sync_off_and_on(
+    setup_integration: MockConfigEntry,
+    hass: HomeAssistant,
+    server: dict[str, Any],
+) -> None:
+    """With a server saved, lists can be edited, switched off and back on."""
     entry = setup_integration
     store = async_get_store(hass)
     cleaning = store.create_list("Cleaning")
@@ -177,7 +216,12 @@ async def test_reconfiguring_lists_with_a_saved_server_and_turning_sync_off(
 
     result = await _menu(hass, entry, "lists")
     assert result["step_id"] == "lists"
-    await hass.config_entries.options.async_configure(
+    (key,) = result["data_schema"].schema
+    assert key.default() == [str(cleaning.id)]
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"lists": [str(cleaning.id)]}
+    )
+    result = await hass.config_entries.options.async_configure(
         result["flow_id"], {f"Cleaning (#{cleaning.id})": CHORES.url}
     )
     assert entry.options[CONF_LINKS] == {str(cleaning.id): CHORES.url}
@@ -185,6 +229,18 @@ async def test_reconfiguring_lists_with_a_saved_server_and_turning_sync_off(
     result = await _menu(hass, entry, "disable")
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert entry.options == {CONF_SERVER: SERVER_OPTIONS, CONF_LINKS: {}}
+
+    # Off: the menu now offers to turn it back on instead of off.
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["menu_options"] == ["server", "enable"]
+
+    # Selecting no list at all also leaves syncing off.
+    result = await _menu(hass, entry, "enable")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"lists": []}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options[CONF_LINKS] == {}
     await hass.config_entries.async_unload(entry.entry_id)
 
 
