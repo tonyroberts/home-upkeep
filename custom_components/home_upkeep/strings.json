@@ -25,9 +25,35 @@
   "options": {
     "step": {
       "init": {
-        "title": "Sync with a to-do list",
-        "description": "Link a Home Upkeep list to a to-do list, such as a CalDAV list that Tasks.org syncs with. Tasks are created, completed, re-opened, edited and deleted on both sides. Leave a list empty to not sync it."
+        "title": "CalDAV sync (optional)",
+        "description": "Home Upkeep works fine without this. Connect a CalDAV server, for example Radicale or Nextcloud, to keep lists in sync with apps like Tasks.org.",
+        "menu_options": {
+          "server": "Connect to a CalDAV server",
+          "lists": "Choose which lists to sync",
+          "disable": "Turn syncing off"
+        }
+      },
+      "server": {
+        "title": "CalDAV server",
+        "description": "Enter the address of your CalDAV server. Tasks are exchanged with it directly.",
+        "data": {
+          "url": "Server URL",
+          "username": "Username",
+          "password": "Password",
+          "verify_ssl": "Verify the server's SSL certificate"
+        }
+      },
+      "lists": {
+        "title": "Lists to sync",
+        "description": "Choose a CalDAV collection for each Home Upkeep list, or create a new one named after the list. Tasks are created, completed, re-opened, edited and deleted on both sides. Leave a list on 'Not synced' to keep it local."
       }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the server. Check the URL and that the server is running.",
+      "invalid_auth": "The server rejected the username or password."
+    },
+    "abort": {
+      "cannot_connect": "Could not connect to the server to create the collection."
     }
   }
 }

@@ -99,7 +99,7 @@ class StoredList:
 @dataclass
 class SyncLink:
     """
-    Link between a Home Upkeep task and an item in a synced to-do list.
+    Link between a Home Upkeep task and an item in a synced remote list.
 
     `snapshot` is the task's fields as of the last successful sync (keys:
     summary, completed, due, description). It is the common ancestor for a
@@ -107,6 +107,6 @@ class SyncLink:
     has been changed on that side.
     """
 
-    entity_id: str
+    remote: str  # identifies the remote list (the CalDAV collection URL)
     uid: str
     snapshot: dict[str, Any]

@@ -113,7 +113,7 @@ class HomeUpkeepStore:
         for link in data.get("sync_links", []):
             try:
                 self._sync_links[int(link["task_id"])] = SyncLink(
-                    entity_id=str(link["entity_id"]),
+                    remote=str(link["remote"]),
                     uid=str(link["uid"]),
                     snapshot=dict(link["snapshot"]),
                 )
@@ -133,7 +133,7 @@ class HomeUpkeepStore:
             "sync_links": [
                 {
                     "task_id": task_id,
-                    "entity_id": link.entity_id,
+                    "remote": link.remote,
                     "uid": link.uid,
                     "snapshot": link.snapshot,
                 }
@@ -417,12 +417,12 @@ class HomeUpkeepStore:
         """Return the link for the item mirroring this task, if any."""
         return self._sync_links.get(task_id)
 
-    def sync_links(self, entity_id: str) -> dict[int, SyncLink]:
-        """Return task id -> link for every task mirrored into `entity_id`."""
+    def sync_links(self, remote: str) -> dict[int, SyncLink]:
+        """Return task id -> link for every task mirrored into `remote`."""
         return {
             task_id: link
             for task_id, link in self._sync_links.items()
-            if link.entity_id == entity_id
+            if link.remote == remote
         }
 
     @callback

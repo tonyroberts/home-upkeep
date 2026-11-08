@@ -38,6 +38,33 @@ Add custom constraints and notes to tasks to inform you of specific conditions (
 
 You can snooze tasks if conditions aren't right, ensuring you see them again when it's more appropriate to tackle them.
 
+## Syncing with a CalDAV task app (optional)
+
+Home Upkeep lists can be kept in sync with a CalDAV to-do collection (for
+example a Radicale or Nextcloud task list that Tasks.org shows on your phone).
+Nothing connects anywhere unless you set this up.
+
+Setup: **Settings -> Devices & services -> Home Upkeep -> Configure**.
+Choose *Connect to a CalDAV server*, enter the URL and login, then pick for each
+Home Upkeep list an existing collection, *Create a new collection*, or *Not synced*.
+You can change the choices or turn syncing off again from the same menu.
+Requires `caldav` 3.7 or newer (installed automatically).
+
+What is synced, in both directions: creating, completing, re-opening, editing
+and deleting items, plus items created in the other app. Only the title,
+completed state, due date and description are synced; everything else on the
+item (alarms, categories, ...) is left untouched.
+
+Good to know:
+- Changes made in Home Upkeep reach the server within seconds. Changes made on
+  the server are picked up by polling once a minute.
+- If both sides change the same field, Home Upkeep wins.
+- A deletion on the server is applied after a 2-minute safety delay, so a
+  server that briefly returns an incomplete list can't wipe your tasks.
+- If the server can't be reached nothing is changed; failed writes are retried.
+- Recurrence stays in Home Upkeep: completing a recurring task creates the next
+  one. An `RRULE` set by another app is kept but not interpreted.
+
 ## Screenshots
 
 <img src="https://github.com/tonyroberts/home-upkeep-addon/blob/main/home-upkeep/screenshot.png?raw=true" width="500">

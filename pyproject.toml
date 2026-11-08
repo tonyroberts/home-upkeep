@@ -14,8 +14,14 @@ dev = [
     # requires for the homeassistant version pytest-homeassistant-custom-component pulls in.
     "home-assistant-frontend==20260128.6",
     "ruff>=0.14.1",
+    "caldav==3.7.0",
 ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "integration: needs a real CalDAV server (set HOME_UPKEEP_TEST_CALDAV); run with `pytest -m integration`",
+]
+# Integration tests are opt-in: they are left out of normal and CI runs.
+addopts = "-m 'not integration'"

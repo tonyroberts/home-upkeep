@@ -10,8 +10,10 @@ PLATFORMS = [Platform.CALENDAR, Platform.TODO]
 
 SIGNAL_UPKEEP_CHANGED = "home_upkeep_changed"
 
-# Config entry option: {"<list id>": "<todo entity id>"} of synced lists.
-CONF_LINKS = "links"
+# Config entry options. Syncing is optional: with no "server" (or no links)
+# Home Upkeep does not talk to any CalDAV server at all.
+CONF_SERVER = "server"  # {"url", "username", "password", "verify_ssl"}
+CONF_LINKS = "links"  # {"<list id>": "<CalDAV collection URL>"}
 
 STORAGE_KEY = "home_upkeep"
 STORAGE_VERSION = 1
