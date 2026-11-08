@@ -21,5 +21,13 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Sync with a to-do list",
+        "description": "Link a Home Upkeep list to a to-do list, such as a CalDAV list that Tasks.org syncs with. Tasks are created, completed, re-opened, edited and deleted on both sides. Leave a list empty to not sync it."
+      }
+    }
   }
 }

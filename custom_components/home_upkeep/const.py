@@ -10,6 +10,9 @@ PLATFORMS = [Platform.CALENDAR, Platform.TODO]
 
 SIGNAL_UPKEEP_CHANGED = "home_upkeep_changed"
 
+# Config entry option: {"<list id>": "<todo entity id>"} of synced lists.
+CONF_LINKS = "links"
+
 STORAGE_KEY = "home_upkeep"
 STORAGE_VERSION = 1
 

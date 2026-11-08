@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from . import migration, panel, websocket_api
 from .const import PANEL_URL_PATH, PLATFORMS
 from .store import HomeUpkeepStore
+from .sync import CalDavSyncManager
 
 # ruff (TC002) wants type-only imports under TYPE_CHECKING to avoid an
 # unnecessary runtime import, since `from __future__ import annotations`
@@ -32,6 +33,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: HomeUpkeepConfigEntry) -
     migration.async_register_services(hass)
     await panel.async_register(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    sync_manager = CalDavSyncManager(hass, entry, store)
+    await sync_manager.async_start()
+    entry.async_on_unload(sync_manager.async_stop)
+
+    async def _async_options_updated(
+        _hass: HomeAssistant, _entry: HomeUpkeepConfigEntry
+    ) -> None:
+        sync_manager.async_configure()
+
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     return True
 
 

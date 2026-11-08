@@ -94,3 +94,19 @@ class StoredList:
             created_at=datetime.fromisoformat(data["created_at"]),
             updated_at=datetime.fromisoformat(data["updated_at"]),
         )
+
+
+@dataclass
+class SyncLink:
+    """
+    Link between a Home Upkeep task and an item in a synced to-do list.
+
+    `snapshot` is the task's fields as of the last successful sync (keys:
+    summary, completed, due, description). It is the common ancestor for a
+    three-way merge: a field that differs from the snapshot on only one side
+    has been changed on that side.
+    """
+
+    entity_id: str
+    uid: str
+    snapshot: dict[str, Any]

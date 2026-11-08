@@ -22,7 +22,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SIGNAL_UPKEEP_CHANGED, STORAGE_KEY, STORAGE_VERSION
 from .logic import calculate_next_due_date
-from .models import StoredList, StoredTask
+from .models import StoredList, StoredTask, SyncLink
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,6 +76,10 @@ class HomeUpkeepStore:
         self._next_task_id = 1
         self._next_list_id = 1
         self._migrated_from_addon = False
+        # task id -> link to the item mirroring it in a synced to-do list
+        # (e.g. CalDAV). Persisted, but not part of the change-notification
+        # stream: it is internal bookkeeping.
+        self._sync_links: dict[int, SyncLink] = {}
 
     async def async_load(self) -> None:
         """
@@ -105,6 +109,16 @@ class HomeUpkeepStore:
                 _LOGGER.exception("Skipping malformed stored task: %s", item)
                 continue
             self._tasks[task.id] = task
+        self._sync_links = {}
+        for link in data.get("sync_links", []):
+            try:
+                self._sync_links[int(link["task_id"])] = SyncLink(
+                    entity_id=str(link["entity_id"]),
+                    uid=str(link["uid"]),
+                    snapshot=dict(link["snapshot"]),
+                )
+            except (KeyError, TypeError, ValueError):
+                _LOGGER.exception("Skipping malformed sync link: %s", link)
         if self._lists:
             self._next_list_id = max(self._lists) + 1
         if self._tasks:
@@ -116,6 +130,15 @@ class HomeUpkeepStore:
             "lists": [lst.to_storage() for lst in self._lists.values()],
             "tasks": [task.to_storage() for task in self._tasks.values()],
             "migrated_from_addon": self._migrated_from_addon,
+            "sync_links": [
+                {
+                    "task_id": task_id,
+                    "entity_id": link.entity_id,
+                    "uid": link.uid,
+                    "snapshot": link.snapshot,
+                }
+                for task_id, link in self._sync_links.items()
+            ],
         }
 
     @callback
@@ -387,6 +410,32 @@ class HomeUpkeepStore:
             {"type": "task_deleted", "list_id": task.list_id, "task_id": task_id}
         )
         return True
+
+    # -------- Sync links --------
+
+    def get_sync_link(self, task_id: int) -> SyncLink | None:
+        """Return the link for the item mirroring this task, if any."""
+        return self._sync_links.get(task_id)
+
+    def sync_links(self, entity_id: str) -> dict[int, SyncLink]:
+        """Return task id -> link for every task mirrored into `entity_id`."""
+        return {
+            task_id: link
+            for task_id, link in self._sync_links.items()
+            if link.entity_id == entity_id
+        }
+
+    @callback
+    def set_sync_link(self, task_id: int, link: SyncLink) -> None:
+        """Record (or replace) the item mirroring this task."""
+        self._sync_links[task_id] = link
+        self._store.async_delay_save(self._data_to_save, SAVE_DELAY)
+
+    @callback
+    def remove_sync_link(self, task_id: int) -> None:
+        """Forget the item mirroring this task."""
+        if self._sync_links.pop(task_id, None) is not None:
+            self._store.async_delay_save(self._data_to_save, SAVE_DELAY)
 
     # -------- Lists --------
 
