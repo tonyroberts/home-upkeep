@@ -182,7 +182,7 @@ class HomeUpkeepOptionsFlow(OptionsFlow):
             )
 
         current = self.config_entry.options.get(CONF_LINKS, {})
-        options = [
+        options: list[SelectOptionDict] = [
             SelectOptionDict(value=NOT_SYNCED, label="Not synced"),
             SelectOptionDict(value=CREATE_NEW, label="Create a new collection"),
             *(SelectOptionDict(value=c.url, label=c.name) for c in self._collections),

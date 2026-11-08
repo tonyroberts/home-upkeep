@@ -177,7 +177,7 @@ async def test_reconfiguring_lists_with_a_saved_server_and_turning_sync_off(
 
     result = await _menu(hass, entry, "lists")
     assert result["step_id"] == "lists"
-    result = await hass.config_entries.options.async_configure(
+    await hass.config_entries.options.async_configure(
         result["flow_id"], {f"Cleaning (#{cleaning.id})": CHORES.url}
     )
     assert entry.options[CONF_LINKS] == {str(cleaning.id): CHORES.url}

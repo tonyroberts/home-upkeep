@@ -225,8 +225,9 @@ class CalDavRemote:
 
     def _get_calendar(self) -> caldav.Calendar:
         if self._calendar is None:
-            self._client = _client(self._settings)
-            self._calendar = self._client.calendar(url=self._collection_url)
+            client = _client(self._settings)
+            self._client = client
+            self._calendar = client.calendar(url=self._collection_url)
         return self._calendar
 
     def _close(self) -> None:

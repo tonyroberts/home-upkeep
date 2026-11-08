@@ -42,7 +42,7 @@ from .models import SyncLink
 from .remote import CalDavRemote, ServerSettings
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Mapping
 
     from homeassistant.core import HomeAssistant
 
@@ -72,7 +72,7 @@ def create_remote(
     return CalDavRemote(hass, settings, collection_url)
 
 
-def server_settings(options: dict[str, Any]) -> ServerSettings | None:
+def server_settings(options: Mapping[str, Any]) -> ServerSettings | None:
     """Read the configured server out of the options (None if not configured)."""
     server = options.get(CONF_SERVER)
     if not server or not server.get("url"):
@@ -221,7 +221,8 @@ class CalDavSyncManager:
         if event_type == "data_imported":
             self._schedule_all()
             return
-        link = self._links.get(event.get("list_id"))
+        list_id = event.get("list_id")
+        link = self._links.get(list_id) if isinstance(list_id, int) else None
         if link is not None:
             self._schedule(link)
 

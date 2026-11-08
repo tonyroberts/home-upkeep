@@ -29,6 +29,8 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+    from custom_components.home_upkeep.models import StoredTask
+
 DUE = date(2026, 3, 1)
 COLLECTION = "http://fake/dev/tasks/"
 SERVER = {"url": "http://fake", "username": "u", "password": "p", "verify_ssl": True}
@@ -127,6 +129,12 @@ class Env:
         self.store = async_get_store(hass)
         self.src = self.store.create_list("Source")
 
+    def get(self, task_id: int) -> StoredTask:
+        """Return a stored task that must exist."""
+        task = self.store.get_task(task_id)
+        assert task is not None
+        return task
+
     async def link(self) -> None:
         """Configure the server and link Source to the collection."""
         self.hass.config_entries.async_update_entry(
@@ -215,7 +223,7 @@ async def test_complete_and_reopen_follow_to_the_copy(env: Env) -> None:
     env.store.update_task(task.id, completed=False)
     await env.settle()
     assert env.remote.summaries(completed=False) == ["Mop floors"]
-    assert env.store.get_task(task.id).completed is False  # not re-completed
+    assert env.get(task.id).completed is False  # not re-completed
 
 
 async def test_edits_follow_to_the_copy(env: Env) -> None:
@@ -261,7 +269,7 @@ async def test_completing_the_copy_completes_the_task(env: Env) -> None:
     env.remote.change(env.remote.uid_of("Mop floors"), completed=True)
     await env.poll()
 
-    assert env.store.get_task(task.id).completed is True
+    assert env.get(task.id).completed is True
 
 
 async def test_reopening_the_copy_reopens_the_task(env: Env) -> None:
@@ -275,7 +283,7 @@ async def test_reopening_the_copy_reopens_the_task(env: Env) -> None:
     env.remote.change(env.remote.uid_of("Mop floors"), completed=False)
     await env.poll()
 
-    assert env.store.get_task(task.id).completed is False
+    assert env.get(task.id).completed is False
     assert env.remote.summaries(completed=False) == ["Mop floors"]
 
 
@@ -293,7 +301,7 @@ async def test_edits_on_the_server_come_back(env: Env) -> None:
     )
     await env.poll()
 
-    updated = env.store.get_task(task.id)
+    updated = env.get(task.id)
     assert (updated.title, updated.description, updated.due_date) == (
         "Mop the floors",
         "Upstairs",
@@ -380,7 +388,7 @@ async def test_both_sides_changed_means_home_upkeep_wins(env: Env) -> None:
     env.store.update_task(task.id, title="Upkeep title")
     await env.poll()
 
-    assert env.store.get_task(task.id).title == "Upkeep title"
+    assert env.get(task.id).title == "Upkeep title"
     assert env.remote.summaries() == ["Upkeep title"]
 
 
@@ -394,7 +402,7 @@ async def test_changes_to_different_fields_are_both_kept(env: Env) -> None:
     env.store.update_task(task.id, due_date=date(2026, 6, 1))
     await env.poll()
 
-    merged = env.store.get_task(task.id)
+    merged = env.get(task.id)
     assert (merged.description, merged.due_date) == ("from server", date(2026, 6, 1))
     (fields,) = env.remote.items.values()
     assert (fields["description"], fields["due"]) == ("from server", "2026-06-01")
@@ -416,7 +424,7 @@ async def test_completing_a_recurring_item_creates_followup_on_both_sides(
     env.remote.change(env.remote.uid_of("Mop floors"), completed=True)
     await env.poll()
 
-    assert env.store.get_task(task.id).completed is True
+    assert env.get(task.id).completed is True
     tasks = env.store.list_tasks(env.src.id)
     assert sorted(t.completed for t in tasks) == [False, True]
     followup = next(t for t in tasks if not t.completed)
@@ -440,7 +448,7 @@ async def test_followup_with_same_title_and_due_does_not_churn(env: Env) -> None
     await env.settle()
 
     env.store.update_task(task.id, completed=True)
-    env.store.create_followup_task(env.store.get_task(task.id))
+    env.store.create_followup_task(env.get(task.id))
     await env.settle()
     await env.poll()
     await env.poll()
@@ -501,7 +509,7 @@ async def test_failed_write_is_retried(env: Env) -> None:
     env.remote.writable = True
     await env.poll()
     assert env.remote.summaries(completed=True) == ["Mop floors"]
-    assert env.store.get_task(task.id).completed is True  # and not reverted
+    assert env.get(task.id).completed is True  # and not reverted
 
 
 async def test_relinking_with_the_same_options_duplicates_nothing(env: Env) -> None:
